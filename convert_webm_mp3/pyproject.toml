@@ -8,6 +8,7 @@ authors = ["alexanghh"]
 python = "~3.9"
 pynumaflow = "0.2.6"
 boto3 = "~1.19.11"
+ffmpeg-python = "0.2.0"
 
 [tool.poetry.dev-dependencies]
 

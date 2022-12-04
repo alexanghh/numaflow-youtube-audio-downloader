@@ -19,6 +19,7 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         curl \
         wget \
+        ffmpeg \
         # deps for building python deps
         build-essential
 

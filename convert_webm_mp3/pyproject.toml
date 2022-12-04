@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "convert-webm-mp3-function"
+version = "0.0.1"
+description = "Convert webm 2 mp3 using ffmpeg and save back to S3"
+authors = ["alexanghh"]
+
+[tool.poetry.dependencies]
+python = "~3.9"
+pynumaflow = "0.2.6"
+boto3 = "~1.19.11"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

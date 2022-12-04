@@ -1,0 +1,70 @@
+apiVersion: numaflow.numaproj.io/v1alpha1
+kind: Pipeline
+metadata:
+  name: youtube-playlist-dowload
+spec:
+  vertices:
+  - name: input
+    scale:
+      min: 1
+    source:
+      http: {}
+  - name: list-playlist
+    scale:
+      min: 1
+    udf:
+      container:
+        image: docker.io/library/list-youtube-playlist-udf:v2
+  - name: download-youtube-save
+    scale:
+      min: 1
+    udf:
+      container:
+        image: docker.io/library/download-youtube-to-s3-udf:v4
+        resources:
+          limits:
+            cpu: 4
+            memory: 2Gi
+          requests:
+            cpu: 2
+            memory: 1Gi
+#    limits: 
+#      readBatchSize: 1
+  - name: log-output
+    scale:
+      min: 1
+    sink:
+      log: {}
+  - name: log-list-error-output
+    scale:
+      min: 1
+    sink:
+      log: {}
+  - name: log-download-error-output
+    scale:
+      min: 1
+    sink:
+      log: {}
+  edges:
+  - from: input
+    to: list-playlist
+  - from: list-playlist
+    to: download-youtube-save
+    conditions:
+      keyIn:
+        - success
+  - from: download-youtube-save
+    to: log-output
+    conditions:
+      keyIn:
+        - success
+  - from: list-playlist
+    to: log-list-error-output
+    conditions:
+      keyIn:
+        - error
+  - from: download-youtube-save
+    to: log-download-error-output
+    conditions:
+      keyIn:
+        - error

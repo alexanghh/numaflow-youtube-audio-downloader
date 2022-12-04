@@ -28,8 +28,23 @@ spec:
           requests:
             cpu: 2
             memory: 1Gi
-#    limits: 
-#      readBatchSize: 1
+    limits:
+      readBatchSize: 1
+  - name: convert_webm_mp3
+    scale:
+      min: 1
+    udf:
+      container:
+        image: docker.io/library/convert-webm-mp3-udf:v1
+        resources:
+          limits:
+            cpu: 4
+            memory: 2Gi
+          requests:
+            cpu: 2
+            memory: 1Gi
+    limits:
+      readBatchSize: 1
   - name: log-output
     scale:
       min: 1
@@ -54,6 +69,11 @@ spec:
       keyIn:
         - success
   - from: download-youtube-save
+    to: convert_webm_mp3
+    conditions:
+      keyIn:
+        - success
+  - from: convert_webm_mp3
     to: log-output
     conditions:
       keyIn:
@@ -65,6 +85,11 @@ spec:
         - error
   - from: download-youtube-save
     to: log-download-error-output
+    conditions:
+      keyIn:
+        - error
+  - from: convert_webm_mp3
+    to: log-convert-error-output
     conditions:
       keyIn:
         - error

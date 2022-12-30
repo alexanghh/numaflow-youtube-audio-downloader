@@ -9,6 +9,24 @@ spec:
       min: 1
     source:
       http: {}
+  - name: wait-test
+    scale:
+      min: 1
+    udf:
+      container:
+        image: docker.io/library/wait-test-udf:v1
+        env:
+          - name:  WAIT_DURATION_SECS
+            value: "3600"
+        resources:
+          limits:
+            cpu: 4
+            memory: 2Gi
+          requests:
+            cpu: 2
+            memory: 1Gi
+    limits:
+      readBatchSize: 10
   - name: list-playlist
     scale:
       min: 1
@@ -29,8 +47,8 @@ spec:
             cpu: 2
             memory: 1Gi
     limits:
-      readBatchSize: 1
-  - name: convert_webm_mp3
+      readBatchSize: 10
+  - name: convert-webm-mp3
     scale:
       min: 1
     udf:
@@ -60,20 +78,28 @@ spec:
       min: 1
     sink:
       log: {}
+  - name: log-convert-error-output
+    scale:
+      min: 1
+    sink:
+      log: {}
   edges:
   - from: input
     to: list-playlist
   - from: list-playlist
+    to: wait-test
+    conditions:
+      keyIn:
+        - success
+  - from: wait-test
     to: download-youtube-save
-    conditions:
-      keyIn:
-        - success
   - from: download-youtube-save
-    to: convert_webm_mp3
+#    to: log-output
+    to: convert-webm-mp3
     conditions:
       keyIn:
         - success
-  - from: convert_webm_mp3
+  - from: convert-webm-mp3
     to: log-output
     conditions:
       keyIn:
@@ -88,7 +114,7 @@ spec:
     conditions:
       keyIn:
         - error
-  - from: convert_webm_mp3
+  - from: convert-webm-mp3
     to: log-convert-error-output
     conditions:
       keyIn:

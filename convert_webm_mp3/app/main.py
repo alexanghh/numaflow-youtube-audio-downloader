@@ -31,7 +31,7 @@ def map_handler(key: str, datum: Datum) -> Messages:
         out, _ = (
             ffmpeg
             .input('pipe:', vn=None)
-            .output('pipe:', format='mp3', metadata='title=' + webm_s3_key.split('/')[-1][:-4])
+            .output('pipe:', format='mp3', metadata='title=' + webm_s3_key.split('/')[-1][:-5])
             .overwrite_output()
             .run(capture_stdout=True, input=webm_buf.getbuffer())
         )
